@@ -17,7 +17,7 @@ def get_html(url):
     return html_content
 
 def get_details(url):
-
+    
     stamp = {}
     
     try:
@@ -36,6 +36,21 @@ def get_details(url):
         stamp['price'] = price.replace('CAD', '').replace('$', '').strip()
     except: 
         stamp['price'] = None
+        
+    try:
+        watermarks_perfs = []
+        trs = html.select('.product-description table tr')
+        for tr in trs:
+            tds = tr.select('td')
+            watermarks_perf = []
+            for td in tds:
+                td_text = td.get_text().strip()
+                watermarks_perf.append(td_text)
+            watermarks_perfs.append(watermarks_perf) 
+        stamp['watermarks_perfs'] = watermarks_perfs    
+    except: 
+        stamp['watermarks_perfs'] = None
+        
         
     try:
         category_cont = html.select('.breadcrumbs-container')[0]
