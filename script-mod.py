@@ -46,106 +46,109 @@ def get_details(url):
     
     stamp = {}
     
-    try:
-        html = get_html(url)
-    except:
-        return stamp
-    
-    try:
-        title = html.select('.product-title')[0].get_text().strip()
-        stamp['title'] = title
-    except: 
-        stamp['title'] = None
-    try:
-        price = html.select('.price--main .money')[0].get_text().strip()
-        stamp['price'] = price.replace('CAD', '').replace('$', '').strip()
-    except: 
-        stamp['price'] = None
-        
-    try:
-        watermarks_perfs = []
-        trs = html.select('.product-description table tr')
-        for tr in trs:
-            tds = tr.select('td')
-            watermarks_perf = []
-            for td in tds:
-                td_text = td.get_text().strip()
-                watermarks_perf.append(td_text)
-            watermarks_perfs.append(watermarks_perf) 
-        stamp['watermarks_perfs'] = str(watermarks_perfs)
-    except: 
-        stamp['watermarks_perfs'] = None
-        
-        
-    try:
-        category_cont = html.select('.breadcrumbs-container')[0]
-        category = category_cont.select('a')[1].get_text().strip()
-        stamp['category'] = category
-    except:
-        stamp['category'] = None    
-        
-    stamp['currency'] = "CAD"
+    if '.jpg' in url:
+        stamp['images'] = [url]
+    else: 
+        try:
+            html = get_html(url)
+        except:
+            return stamp
 
-    # image_urls should be a list
-    images = []                    
-    try:
-        image_items = html.select('.product-galley--image-background')
-        for image_item in image_items:
-            img_temp = image_item.get('data-image')
-            img_parts = img_temp.split('?') 
-            img = img_parts[0].replace('//', 'https://')
-            if img not in images:
-                images.append(img)
-    except:
-        pass
-    
-    stamp['image_urls'] = images 
-    
-    try:
-        raw_text = html.select('.product-description')[0].get_text().strip()
-        stamp['raw_text'] = raw_text.replace('\xa0',' ').replace('\n', ' ')
-    except:
-        stamp['raw_text'] = None
-        
-    if stamp['raw_text'] == None and stamp['title'] != None:
-        stamp['raw_text'] = stamp['title']
-        
-    centering_margins = ''  
-    paper_freshness = '' 
-    colour = ''
-    impression = ''
-    absence_paper_flaws = ''
-    perfs = ''
-    
-    try:
-        items = html.select('.product-description p')
-        for item in items:
-            item_value = item.get_text().strip()
-            if ':' in item_value:
-                items_parts = item_value.split(':')
-                heading = items_parts[0].strip()
-                value = items_parts[1].strip()
-                if heading == 'Centering/margins':
-                    centering_margins = value
-                elif heading == 'Paper freshness':
-                    paper_freshness = value 
-                elif heading == 'Colour':
-                    colour = value 
-                elif heading == 'Impression':
-                    impression = value 
-                elif heading == 'Absence of visible paper flaws':
-                    absence_paper_flaws = value 
-                elif 'Perforations' in heading:
-                    perfs = value     
-    except: 
-        pass
-    
-    stamp['centering_margins'] = centering_margins
-    stamp['paper_freshness'] = paper_freshness
-    stamp['colour'] = colour
-    stamp['impression'] = impression
-    stamp['absence_paper_flaws'] = absence_paper_flaws
-    stamp['perfs'] = perfs
+        try:
+            title = html.select('.product-title')[0].get_text().strip()
+            stamp['title'] = title
+        except: 
+            stamp['title'] = None
+        try:
+            price = html.select('.price--main .money')[0].get_text().strip()
+            stamp['price'] = price.replace('CAD', '').replace('$', '').strip()
+        except: 
+            stamp['price'] = None
+
+        try:
+            watermarks_perfs = []
+            trs = html.select('.product-description table tr')
+            for tr in trs:
+                tds = tr.select('td')
+                watermarks_perf = []
+                for td in tds:
+                    td_text = td.get_text().strip()
+                    watermarks_perf.append(td_text)
+                watermarks_perfs.append(watermarks_perf) 
+            stamp['watermarks_perfs'] = str(watermarks_perfs)
+        except: 
+            stamp['watermarks_perfs'] = None
+
+
+        try:
+            category_cont = html.select('.breadcrumbs-container')[0]
+            category = category_cont.select('a')[1].get_text().strip()
+            stamp['category'] = category
+        except:
+            stamp['category'] = None    
+
+        stamp['currency'] = "CAD"
+
+        # image_urls should be a list
+        images = []                    
+        try:
+            image_items = html.select('.product-galley--image-background')
+            for image_item in image_items:
+                img_temp = image_item.get('data-image')
+                img_parts = img_temp.split('?') 
+                img = img_parts[0].replace('//', 'https://')
+                if img not in images:
+                    images.append(img)
+        except:
+            pass
+
+        stamp['image_urls'] = images 
+
+        try:
+            raw_text = html.select('.product-description')[0].get_text().strip()
+            stamp['raw_text'] = raw_text.replace('\xa0',' ').replace('\n', ' ')
+        except:
+            stamp['raw_text'] = None
+
+        if stamp['raw_text'] == None and stamp['title'] != None:
+            stamp['raw_text'] = stamp['title']
+
+        centering_margins = ''  
+        paper_freshness = '' 
+        colour = ''
+        impression = ''
+        absence_paper_flaws = ''
+        perfs = ''
+
+        try:
+            items = html.select('.product-description p')
+            for item in items:
+                item_value = item.get_text().strip()
+                if ':' in item_value:
+                    items_parts = item_value.split(':')
+                    heading = items_parts[0].strip()
+                    value = items_parts[1].strip()
+                    if heading == 'Centering/margins':
+                        centering_margins = value
+                    elif heading == 'Paper freshness':
+                        paper_freshness = value 
+                    elif heading == 'Colour':
+                        colour = value 
+                    elif heading == 'Impression':
+                        impression = value 
+                    elif heading == 'Absence of visible paper flaws':
+                        absence_paper_flaws = value 
+                    elif 'Perforations' in heading:
+                        perfs = value     
+        except: 
+            pass
+
+        stamp['centering_margins'] = centering_margins
+        stamp['paper_freshness'] = paper_freshness
+        stamp['colour'] = colour
+        stamp['impression'] = impression
+        stamp['absence_paper_flaws'] = absence_paper_flaws
+        stamp['perfs'] = perfs
 
     # scrape date in format YYYY-MM-DD
     scrape_date = datetime.date.today().strftime('%Y-%m-%d')
@@ -160,7 +163,7 @@ def get_details(url):
     return stamp
 
 def get_page_items(url):
-
+    
     items = []
     next_url = ''
 
@@ -170,8 +173,16 @@ def get_page_items(url):
         return items, next_url
 
     try:
-        for item in html.select('.productitem--title a'):
-            item_link = 'https://brixtonchrome.com' + item.get('href')
+        for item in html.select('.productitem'):
+            item_cont = item.select('.productitem--title a')[0]
+            item_href = item_cont.get('href')
+            if '-auction' not in item_href: 
+                item_link = 'https://brixtonchrome.com' + item_href
+            else:
+                item_cont = item.select('.productitem--image-alternate')[0]
+                item_link_temp = item_cont.get('src')
+                item_link_parts = item_link_temp.split('?')
+                item_link = item_link_parts[0].replace('//', 'https://')
             if item_link not in items:
                 items.append(item_link)
     except:
