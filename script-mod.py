@@ -102,9 +102,8 @@ def get_details(url):
     stamp['image_urls'] = images 
     
     try:
-        raw_text_cont = html.select('.product-description')[0]
-        raw_text = raw_text_cont.select('p')[0].get_text().strip()
-        stamp['raw_text'] = raw_text.replace('\xa0',' ')
+        raw_text = html.select('.product-description')[0].get_text().strip()
+        stamp['raw_text'] = raw_text.replace('\xa0',' ').replace('\n', ' ')
     except:
         stamp['raw_text'] = None
         
@@ -136,7 +135,7 @@ def get_details(url):
                     impression = value 
                 elif heading == 'Absence of visible paper flaws':
                     absence_paper_flaws = value 
-                elif heading == 'Perforations':
+                elif 'Perforations' in heading:
                     perfs = value     
     except: 
         pass
